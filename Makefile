@@ -65,6 +65,14 @@ $(REFS)/trainset16_022016.% :
 #
 ################################################################################
 
+# Obtained the raw `fastq.gz` files from https://www.mothur.org/MiSeqDevelopmentData.html
+# * Downloaded https://mothur.s3.us-east-2.amazonaws.com/data/MiSeqDevelopmentData/StabilityWMetaG.tar
+# * Ran the following from the project's root directoryy
+data/raw/StabilityWMetaG.tar :
+	wget --no-check-certificate https://mothur.s3.us-east-2.amazonaws.com/data/MiSeqDevelopmentData/StabilityWMetaG.tar
+	tar xvf StabilityWMetaG.tar -C data/raw/
+	mv StabilityWMetaG.tar data/raw/
+
 # Change stability to the * part of your *.files file that lives in data/raw/
 BASIC_STEM = data/mothur/stability.trim.contigs.good.unique.good.filter.unique.precluster
 
@@ -76,8 +84,8 @@ BASIC_STEM = data/mothur/stability.trim.contigs.good.unique.good.filter.unique.p
 # Edit code/get_good_seqs.batch to include the proper name of your *files file
 $(BASIC_STEM).denovo.uchime.pick.pick.count_table $(BASIC_STEM).pick.pick.fasta $(BASIC_STEM).pick.pds.wang.pick.taxonomy : code/get_good_seqs.batch\
 					data/references/silva.v4.align\
-					data/references/trainset16_022016.pds.fasta\
-					data/references/trainset16_022016.pds.tax
+					data/references/trainset14_032015.pds.fasta\
+					data/references/trainset14_032015.pds.tax
 	mothur code/get_good_seqs.batch;\
 	rm data/mothur/*.map
 
@@ -120,6 +128,10 @@ $(BASIC_STEM).pick.pick.pick.error.summary : code/get_error.batch\
 #
 ################################################################################
 
+# Construct NMDS png file
+results/figures/nmds_figure.png : code/plot_nmds.R\
+        $(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.thetayc.0.03.lt.ave.nmds.axes
+	R -e "source('code/plot_nmds.R'); plot_nmds('$(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.thetayc.0.03.lt.ave.nmds.axes')"
 
 
 ################################################################################
@@ -131,7 +143,8 @@ $(BASIC_STEM).pick.pick.pick.error.summary : code/get_error.batch\
 ################################################################################
 
 
-$(FINAL)/manuscript.% : 			\ #include data files that are needed for paper don't leave this line with a : \
+$(FINAL)/manuscript.% : results/figures/nmds_figure.png\
+            $(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.shared\
 						$(FINAL)/mbio.csl\
 						$(FINAL)/references.bib\
 						$(FINAL)/manuscript.Rmd
@@ -140,8 +153,6 @@ $(FINAL)/manuscript.% : 			\ #include data files that are needed for paper don't
 	rm $(FINAL)/manuscript.utf8.md
 
 
-write.paper : $(TABLES)/table_1.pdf $(TABLES)/table_2.pdf\ #customize to include
-				$(FIGS)/figure_1.pdf $(FIGS)/figure_2.pdf\	# appropriate tables and
-				$(FIGS)/figure_3.pdf $(FIGS)/figure_4.pdf\	# figures
+write.paper : results/figures/nmds_figure.png\
 				$(FINAL)/manuscript.Rmd $(FINAL)/manuscript.md\
 				$(FINAL)/manuscript.tex $(FINAL)/manuscript.pdf
