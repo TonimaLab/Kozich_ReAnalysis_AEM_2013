@@ -25,3 +25,6 @@ mv trainset14_032015.pds/trainset* data/references/
 rm -rf trainset14_032015.pds
 rm trainset14_032015.pds.tgz
 
+# Generate a customized version of the SILVA reference database that targets the V4 region
+code/mothur/mothur "#pcr.seqs(fasta=data/references/silva.seed.align, start=11894, end=25319, keepdots=F, processors=8)"
+mv data/references/silva.seed.pcr.align data/references/silva.v4.align
