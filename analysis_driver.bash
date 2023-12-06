@@ -40,3 +40,7 @@ code/mothur/mothur code/get_shared_otus.batch
 
 # Generate nmds axes file for plotting from shared file
 code/mothur/mothur code/get_nmds_data.batch
+
+# Calculate the nmber of otus per sample  when rarefying to 3000 seqs per sample
+
+code/mothur/mothur code/get_sobs_data.batch
