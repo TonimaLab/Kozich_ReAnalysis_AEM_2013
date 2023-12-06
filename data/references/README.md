@@ -1,5 +1,3 @@
-# README
-
 Obtained the silva reference alignment from the mothur website:
 
 ```bash
