@@ -1,14 +1,10 @@
 ---
-title: "**NAME OF THIS STUDY**"
+title: Reproducing Kozich et al
+author: Tonima Rahman
+date: "December 12, 2023"
+output: html_document
+csl: mbio.csl
 bibliography: references.bib
-output:
-  pdf_document:
-    keep_tex: true
-    includes:
-      in_header: header.tex
-csl: mbio.csl #Get themes at https://github.com/citation-style-language/styles
-fontsize: 11pt
-geometry: margin=1.0in
 ---
 
 
@@ -20,7 +16,6 @@ opts_chunk$set("warning" = FALSE)
 opts_chunk$set("cache" = FALSE)
 
 inline_hook <- function(x){
-	print(x)
 
 	if(is.list(x)){
 		x <- unlist(x)
@@ -33,45 +28,11 @@ inline_hook <- function(x){
 			paste(format(x,big.mark=',', digits=1, nsmall=1, scientific=FALSE))
 		}
 	} else {
-    	paste(x)      
+    	paste(x)
 	}
 }
 knitr::knit_hooks$set(inline=inline_hook)
-```
-
-
-
-\vspace{35mm}
-
-Running title: INSERT RUNNING TITLE HERE
-
-\vspace{35mm}
-
-
-Your Name Here^1, Joeseph P. Schmo^2, Sally J. Rivers^1, Patrick D. Schloss^1$\dagger$^
-
-\vspace{40mm}
-
-$\dagger$ To whom correspondence should be addressed: pschloss@umich.edu
-
-1\. Department of Microbiology and Immunology, University of Michigan, Ann Arbor, MI 48109
-
-2\. Other department contact information
-
-
-\newpage
-\linenumbers
-
-
-## Abstract
-
-
-\newpage
-
-## Introduction
-
-
-## Results and Discussion
+``````
 
 ```{r echo=FALSE}
 shared_file_name <- "data/mothur/stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.opti_mcc.unique_list.shared"
@@ -113,20 +74,37 @@ indicate that our approach can be scaled to multiplex large numbers of
 samples.
 
 
-## Conclusions
-
-
-## Materials and Methods
-
-
-\newpage
-
 **FIG 4** Principal coordinate ordination of YC values [@Yue2001] relating the
 community structures of the fecal microbiota from 12 mice collected on days
 0 through 9 (Early) and days 141 through 150 (Late) after weaning.
 
 ![](../results/figures/nmds_figure.png)
 
-\newpage
+
+
+
+```{r table_1}
+days <- as.numeric(gsub(".*D(\\d*)", "\\1", shared_file$Group))
+
+n_samples_per_day <- numeric()
+mean_seqs_per_day_per_sample <- numeric()
+total_seqs_per_day <- numeric()
+
+unique_days <- sort(unique(days))
+
+for(d in unique_days){
+  n_samples_per_day[as.character(d)] <- nrow(shared_file[days == d, -c(1,2,3)])
+  total_seqs_per_day[as.character(d)] <- sum(shared_file[days == d, -c(1,2,3)])
+  mean_seqs_per_day_per_sample[as.character(d)] <-
+         mean(apply(shared_file[days == d, -c(1,2,3)], 1, sum), na.rm=T)
+}
+
+data <- data.frame(unique_days, mean_seqs_per_day_per_sample,
+         total_seqs_per_day, n_samples_per_day)
+
+kable(data, digits=c(0, 1, 0, 0), row.names=FALSE,
+         col.names=c("Day", "Seqs. per<br>sample (mean)",
+         "Seqs. per<br>day (total)", "Number of<br>samples"), align='lcrc')
+```
 
 ## References
