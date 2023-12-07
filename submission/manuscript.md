@@ -87,7 +87,7 @@ samples.
 
 \newpage
 
-**FIG 4** Principal coordinate ordination of YC values [@Yue2001] relating the
+**FIG 4** Non-metric dimentional scaling ordination of Theta YC values [@Yue2001] relating the
 community structures of the fecal microbiota from 12 mice collected on days
 0 through 9 (Early) and days 141 through 150 (Late) after weaning.
 
