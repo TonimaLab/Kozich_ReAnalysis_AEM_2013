@@ -3,7 +3,7 @@ FIGS = results/figures
 TABLES = results/tables
 PROC = data/process
 FINAL = submission/
-
+MOTHUR = code/mothur/mothur
 # utility function to print various variables. For example, running the
 # following at the command line:
 #
@@ -13,6 +13,12 @@ FINAL = submission/
 #	BAM=data/raw_june/V1V3_0001.bam data/raw_june/V1V3_0002.bam ...
 print-%:
 	@echo '$*=$($*)'
+
+# obtain linux version of mothur
+$(MOTHUR) :
+	wget --no-check-certificate https://github.com/mothur/mothur/releases/download/v1.39.5/Mothur.linux_64.zip
+	unzip Mothur.linux_64.zip
+	mv mothur code/
 
 
 ################################################################################
@@ -49,12 +55,12 @@ $(REFS)/silva.v4.align : $(REFS)/silva.seed.align
 # use a "special" pds version of the database files, which are described at
 # http://blog.mothur.org/2017/03/15/RDP-v16-reference_files/
 
-$(REFS)/trainset16_022016.% :
-	wget -N https://www.mothur.org/w/images/c/c3/Trainset16_022016.pds.tgz
-	tar xvzf Trainset16_022016.pds.tgz trainset16_022016.pds
-	mv trainset16_022016.pds/* $(REFS)/
-	rm -rf trainset16_022016.pds
-	rm Trainset16_022016.pds.tgz
+$(REFS)/trainset14_032015.% :
+	wget -N https://www.mothur.org/w/images/c/c3/Trainset14_032015.pds.tgz
+	tar xvzf Trainset14_032015.pds.tgz trainset14_032015.pds
+	mv trainset14_032015.pds/* $(REFS)/
+	rm -rf trainset14_032015.pds
+	rm Trainset14_032015.pds.tgz
 
 ################################################################################
 #
@@ -128,10 +134,15 @@ $(BASIC_STEM).pick.pick.pick.error.summary : code/get_error.batch\
 #
 ################################################################################
 
-# Construct NMDS png file
-results/figures/nmds_figure.png : code/plot_nmds.R\
-        $(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.thetayc.0.03.lt.ave.nmds.axes
-	R -e "source('code/plot_nmds.R'); plot_nmds('$(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.thetayc.0.03.lt.ave.nmds.axes')"
+# generate data to plot PCoA ordination
+$(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.thetayc.0.03.lt.ave.pcoa.axes: $(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.shared $(MOTHUR)
+	$(MOTHUR) code/get_pcoa_data.batch
+
+
+# Construct PCoA  png file
+results/figures/pcoa_figure.png : code/plot_pcoa.R\
+        $(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.thetayc.0.03.lt.ave.pcoa.axes
+	R -e "source('code/plot_pcoa.R'); plot_pcoa('$(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.thetayc.0.03.lt.ave.pcoa.axes')"
 
 
 ################################################################################
@@ -143,7 +154,7 @@ results/figures/nmds_figure.png : code/plot_nmds.R\
 ################################################################################
 
 
-$(FINAL)/manuscript.% : results/figures/nmds_figure.png\
+$(FINAL)/manuscript.% : results/figures/pcoa_figure.png\
             $(BASIC_STEM).pick.pick.pick.opti_mcc.unique_list.shared\
 						$(FINAL)/mbio.csl\
 						$(FINAL)/references.bib\
@@ -153,6 +164,6 @@ $(FINAL)/manuscript.% : results/figures/nmds_figure.png\
 	rm $(FINAL)/manuscript.utf8.md
 
 
-write.paper : results/figures/nmds_figure.png\
+write.paper : results/figures/pcoa_figure.png\
 				$(FINAL)/manuscript.Rmd $(FINAL)/manuscript.md\
 				$(FINAL)/manuscript.tex $(FINAL)/manuscript.pdf

@@ -91,7 +91,7 @@ samples.
 community structures of the fecal microbiota from 12 mice collected on days
 0 through 9 (Early) and days 141 through 150 (Late) after weaning.
 
-![](../results/figures/nmds_figure.png)
+![](../results/figures/pcoa_figure.png)
 
 \newpage
 
